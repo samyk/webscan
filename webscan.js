@@ -76,8 +76,8 @@ window.scanIps = async function(ips, conf)
 window.scanIpsBlock = async function(ips, conf)
 {
   // ensure we're on http
-  if (window.location.protocol != 'http')
-    window.location.protocol = 'http'
+  if (window.location.protocol !== 'http:')
+    window.location.protocol = 'http:'
 
   if (!conf) conf = { }
   if (!conf.timeout) conf.timeout = 1000
