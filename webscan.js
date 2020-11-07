@@ -44,7 +44,7 @@ let subnets = [
 ]
 
 // convert * in ips to 0..255
-var unroll_ips = function(ips)
+var unroll_ips = function(ips, min, max)
 {
   // convert single ip to array
   if (typeof(ips) === 'string')
@@ -53,7 +53,7 @@ var unroll_ips = function(ips)
   // flatten *
   return ips.flatMap(ip =>
     ip.indexOf('*') != -1 ?
-    [...Array(256).keys()].map(i => ip.replace('*', i)) :
+    [...Array(256-(min||0)-(max||0)).keys()].map(i => ip.replace('*', (min || 0) + i)) :
     ip
   )
 }
@@ -140,13 +140,13 @@ window.webScanAll = async function(nets, conf)
   if (conf.logger) conf.logger(`webScanAll() started`)
 
   // first get our possible networks
-  nets = await scanIps(unroll_ips(nets, conf))
+  nets = await scanIps(unroll_ips(nets), conf)
 
   // now let's scan each block of 256 IPs per net
   for (var net of Object.keys(nets))
   {
     if (conf.logger) conf.logger(`scanIps(${getSubnet(net)})`)
-    possible.push(await scanIps(unroll_ips(getSubnet(net)+'*'), conf))
+    possible.push(await scanIps(unroll_ips(getSubnet(net)+'*', 2, 253), conf))
   }
 
   return possible
