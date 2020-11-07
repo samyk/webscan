@@ -137,7 +137,7 @@ window.webScanAll = async function(nets, conf)
   let possible = []
   if (!conf) conf = { }
   if (!nets) nets = subnets
-  if (conf.logger) conf.logger(`webScanAll() started`
+  if (conf.logger) conf.logger(`webScanAll() started`)
 
   // first get our possible networks
   nets = await scanIps(unroll_ips(nets, conf))
