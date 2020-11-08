@@ -301,7 +301,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   {
     liveIps[lip] = time
     if (conf.networkCallback)
-      conf.networkCallback(tip)
+      conf.networkCallback(lip)
     conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms (networkCallback called)`)
 
     // now validate which ips are actually local via webrtc
