@@ -256,7 +256,7 @@ window.unroll_ips = function(ips, min, max)
 window.scanIps = async function(ips, conf, subnet)
 {
   if (!conf) conf = { }
-  if (!conf.block) conf.block = 50
+  if (!conf.block) conf.block = 30
   if (conf.logger) conf.logger(`scanIps() started, subnet=${!!subnet}`)
 
   let liveIps = {}
@@ -269,10 +269,6 @@ window.scanIps = async function(ips, conf, subnet)
 
 window.scanIpsBlock = async function(ips, conf, subnet)
 {
-  // ensure we're on http
-  if (window.location.protocol !== 'http:')
-    window.location.protocol = 'http:'
-
   if (!conf) conf = { }
   if (!conf.timeout) conf.timeout = 3000
   if (conf.logger) conf.logger(`scanIpsBlock(${ips})`)
@@ -289,9 +285,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'omit', // include, *same-origin, omit
-    headers: {
-      //'Content-Type': 'application/json',
-    },
+    headers: { },
     redirect: 'manual', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
   }
@@ -339,7 +333,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     if (!scanned[ip])
     {
       //console.log(epoch(), ip)
-      scans.push(fetch(`http://${ip}:1337/samyscan`, fetchConf).catch(promises[ip]))
+      scans.push(fetch(`//${ip}:1337/samyscan`, fetchConf).catch(promises[ip]))
       scanned[ip] = epoch()
     }
   }
@@ -369,8 +363,8 @@ window.scanIpsBlock = async function(ips, conf, subnet)
 // return time
 function epoch()
 {
-  return performance.now()
-  //return new Date().getTime()
+  //return performance.now()
+  return new Date().getTime()
 }
 
 // return subnet from ip address
