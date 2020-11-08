@@ -300,16 +300,16 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   let addLive = async function(lip, time)
   {
     liveIps[lip] = time
-    if (conf.hostCallback)
-      conf.hostCallback(tip)
-    conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms`)
+    if (conf.networkCallback)
+      conf.networkCallback(tip)
+    conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms (networkCallback called)`)
 
     // now validate which ips are actually local via webrtc
     if (conf.rtc !== false)
       await connectPeers(lip, function(tip)
       {
         if (conf.logger)
-          conf.logger(`<b><span style='color:tomato;'>found LOCAL ip address: ${tip}</span></b>`)
+          conf.logger(`<b><span style='color:tomato;'>found LOCAL ip address: ${tip}</span> (localCallback called)</b>`)
         if (conf.localCallback)
           conf.localCallback(tip)
         liveIps[tip] = 0
