@@ -257,7 +257,7 @@ window.unroll_ips = function(ips, min, max)
 window.scanIps = async function(ips, conf, subnet)
 {
   if (!conf) conf = { }
-  if (!conf.block) conf.block = 30
+  if (!conf.block) conf.block = 10
   if (conf.logger) conf.logger(`scanIps() started, subnet=${!!subnet}`)
 
   let liveIps = {}
@@ -271,7 +271,7 @@ window.scanIps = async function(ips, conf, subnet)
 window.scanIpsBlock = async function(ips, conf, subnet)
 {
   if (!conf) conf = { }
-  if (!conf.timeout) conf.timeout = 3000
+  if (!conf.timeout) conf.timeout = 2000
   if (conf.logger) conf.logger(`scanIpsBlock(${ips})`)
   let promises = {}
   let liveIps = {}
@@ -282,7 +282,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   // this is built for high speed and about 200x faster than standard fetch
   let fetchConf = {
     signal: signal,
-    method: 'HEAD', // *GET, POST, PUT, DELETE, etc.
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'omit', // include, *same-origin, omit
