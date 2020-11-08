@@ -19,12 +19,16 @@ webscan works like so
 
 ### implementation
 ```javascript
-let ipsToScan = undefined // scan all pre-defined networks
-let scan = await webScanAll(
+// wait for scan to finish
+let scanResults = await webScanAll()
+
+// or get callbacks when ips are found with a promise
+let ipsToScan = undefined // scans all pre-defined networks if null
+let scanPromise = webScanAll(
   ipsToScan, // array. if undefined, scan major subnet gateways, then scan live subnets. supports wildcards
   {
     rtc: true,   // use webrtc to detect local ips
-    logger: log, // logger callback
+    logger: l => console.log(l),  // logger callback
     localCallback:   function(ip) { console.log(`local ip callback: ${ip}`)   },
     networkCallback: function(ip) { console.log(`network ip callback: ${ip}`) },
   }
@@ -33,27 +37,42 @@ let scan = await webScanAll(
 
 returns
 ```javascript
-scan = {
+scanResults = {
   "local": ["192.168.0.109"], // local ip address
   "network": { // other hosts on the network and how fast they respond
-    "192.168.100.1": 92.000000000098,
-    "192.168.0.1": 97.9999999999563,
-    "192.168.0.2": 82.000000000313,
-    "192.168.0.100": 46.9999999999345,
+    "192.168.0.1": 97,
+    "192.168.0.2": 82,
+    "192.168.0.100": 46,
     "192.168.0.109": 0,
-    "192.168.0.117": 74.999999999818,
-    "192.168.0.113": 17.999999999942,
-    "192.168.0.112": 21.99999999984,
+    "192.168.0.117": 74,
+    "192.168.0.113": 17,
+    "192.168.0.112": 21,
     "192.168.0.114": 25,
     "192.168.0.116": 25,
     "192.168.0.115": 25,
-    "192.168.0.105": 57.999999999898,
-    "192.168.0.107": 63.0000000000146,
-    "192.168.0.103": 64.9999999999636,
-    "192.168.0.108": 31.999999999971
+    "192.168.0.105": 57,
+    "192.168.0.107": 63,
+    "192.168.0.103": 64,
+    "192.168.0.108": 31
   }
 }
 ```
+
+Todo
+- use iframe to perform scans in blocks
+  - when the frame is torn down, i assume this helps guarantee the connections are torn down
+  - how do multiple iframes scanning multiple blocks work? perhaps this allows us to bypass browser conncetion rate limiting
+- support both fetch and img as scanner cores
+  - Safari
+    - note: img tag works really well in some browsers like Safari
+    - caveat: changing the .src doesn't seem to abort the connection
+    - potential solution: see iframe note above
+  - Chrome
+    - caveat: chrome will not abort the connection if you remove the img from dom
+    - solution: chrome will abort the connection of an img if you adjust the .src, this is great!
+    - caveat: changing the img.src to '#' makes another request to the same parent page
+    - caveat: changing the img.src to 'about:' produces a warning in console, is there something else to use that won't make a request?
+- use img timing as a local ip detection mechanism
 
 Tested on
 - Chrome 87.0.4280.47 (macOS)
