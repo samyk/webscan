@@ -3,25 +3,25 @@
   <script src="webscan.js"></script>
 </head>
 <body>
-  <pre id='content'>
- * web-based network scanner
- * by <a href="https://twitter.com/samykamkar">samy kamkar</a> 2020/11/07
- * <a href="https://samy.pl">https://samy.pl</a>
-  </pre>
+<pre id='content'>
+* <a href="https://github.com/samyk/webscan"><b>webscan</b></a>, a reliable web-based network scanner
+* by <a href="https://twitter.com/samykamkar">samy kamkar</a> 2020/11/07
+* <a href="https://samy.pl">https://samy.pl</a>
+<hr>
+</pre>
 
   <script>
 (async function() {
   // logging function
   let log = function(line)
   {
-    console.log('wtf', line)
-    let pre = document.createElement('pre')
-    pre.textContent = line
-    document.getElementById('content').appendChild(pre)
+    //console.log(line)
+    document.getElementById('content').innerHTML += line + '\n'
   }
 
-  let scan = await webScanAll(undefined, { logger: log }) // scan major subnet gateways, then scan live subnets
+  let scan = await webScanAll(undefined, { rtc: true, logger: log }) // scan major subnet gateways, then scan live subnets
   log(JSON.stringify(scan, null, 2))
+  log(`<b>local IPs: ${scan.local.join(', ')}</b>`)
 })()
   </script>
 </body>
