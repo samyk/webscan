@@ -390,6 +390,19 @@ window.webScanAll = async function(nets, conf)
   // scan possible networks
   ips.network = await scanIps(unroll_ips(nets), conf, true)
   ips.local = Object.keys(ips.network).filter(ip => ips.network[ip] == 0)
+
+  // no local ip? try once more
+  if (!ips.local.length)
+  {
+    if (conf.logger) conf.logger('no local ips found, scanning once more')
+
+    // delete old times
+    scanned = {}
+
+    // scan once more
+    ips.network = await scanIps(unroll_ips(nets), conf, true)
+    ips.local = Object.keys(ips.network).filter(ip => ips.network[ip] == 0)
+  }
   return ips
 }
 })(window)
