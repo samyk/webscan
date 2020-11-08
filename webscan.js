@@ -285,7 +285,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   // this is built for high speed and about 200x faster than standard fetch
   let fetchConf = {
     signal: signal,
-    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    method: 'HEAD', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
     credentials: 'omit', // include, *same-origin, omit
@@ -338,6 +338,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     // if we haven't scanned it yet
     if (!scanned[ip])
     {
+      //console.log(epoch(), ip)
       scans.push(fetch(`http://${ip}:1337/samyscan`, fetchConf).catch(promises[ip]))
       scanned[ip] = epoch()
     }
