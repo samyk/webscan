@@ -1,5 +1,5 @@
 /*
- * reliable web-based network scanner
+ * cross-browser/cross-platform browser-based network scanner and local ip detector
  * by samy kamkar 2020/11/07
  * https://samy.pl
  */
@@ -19,6 +19,7 @@ let subnets = [
   '10.1.10.1',
   '10.10.1.1',
   '10.90.90.90',
+  '192.168.100.1',
   '192.168.*.1',
   '192.168.0.10',
   '192.168.0.100',
@@ -48,39 +49,6 @@ let subnets = [
 ]
 
 let candidateKeys = ["address", "candidate", "component", "foundation", "port", "priority", "protocol", "relatedAddress", "relatedPort", "sdpMLineIndex", "sdpMid", "tcpType", "type", "usernameFragment"]
-
-function dump(obj, indent)
-{
-  let result = ""
-  if (indent == null) indent = ""
-
-  for (let property in obj)
-  {
-    let value = obj[property]
-    if (typeof value == 'string')
-      value = "'" + value + "'"
-    else if (typeof value == 'object')
-    {
-      if (value instanceof Array)
-      {
-        // Just let JS convert the Array to a string!
-        value = "[ " + value + " ]"
-      }
-      else
-      {
-        // Recursive dump
-        // (replace "  " by "\t" or something else if you prefer)
-        let od = dump(value, indent + "  ")
-        // If you like { on the same line as the key
-        //value = "{\n" + od + "\n" + indent + "}"
-        // If you prefer { and } to be aligned
-        value = "\n" + indent + "{\n" + od + "\n" + indent + "}"
-      }
-    }
-    result += indent + "'" + property + "' : " + value + ",\n"
-  }
-  return result.replace(/,\n$/, "")
-}
 
 // ascii to hex
 function a2h(str)
@@ -134,7 +102,6 @@ window.connectPeers = async function(ip, success)
   function receiveChannelCallback(event)
   {
     console.log(`receiveChannelCallback: ${event}`, event)
-    //document.getElementById('content').innerHTML += '<b>XXXreceiveChannelCallback:</b>'+dump(event, '  ')
     receiveChannel = event.channel
     receiveChannel.onmessage = handleReceiveMessage
     receiveChannel.onopen = handleReceiveChannelStatusChange
@@ -254,7 +221,6 @@ function handleRemoteAddCandidateSuccess()
 }
 
 // Handle an error that occurs during addition of ICE candidate.
-
 function handleAddCandidateError()
 {
   console.log(`handleAddCandidateError - FAIL`)
@@ -262,11 +228,9 @@ function handleAddCandidateError()
 
 // Handle onmessage events for the receiving channel.
 // These are the data messages sent by the sending channel.
-
 function handleReceiveMessage(event)
 {
   console.log(`handleReceiveMessage: ${event}: ${event.data}`)
-  //document.getElementById('content').innerHTML += '\n<b>XXXhandleReceiveMessage:</b>'+dump(event, '  ')
   console.log(event.ice)
 }
 
@@ -321,7 +285,6 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   // this is built for high speed and about 200x faster than standard fetch
   let fetchConf = {
     signal: signal,
-    /*
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
@@ -331,13 +294,14 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     },
     redirect: 'manual', // manual, *follow, error
     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    */
   }
 
   // add ip to our live IPs
   let addLive = async function(lip, time)
   {
     liveIps[lip] = time
+    if (conf.hostCallback)
+      conf.hostCallback(tip)
     conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms`)
 
     // now validate which ips are actually local via webrtc
@@ -346,6 +310,8 @@ window.scanIpsBlock = async function(ips, conf, subnet)
       {
         if (conf.logger)
           conf.logger(`<b><span style='color:tomato;'>found LOCAL ip address: ${tip}</span></b>`)
+        if (conf.localCallback)
+          conf.localCallback(tip)
         liveIps[tip] = 0
       })
   }
@@ -422,7 +388,7 @@ window.webScanAll = async function(nets, conf)
 
   // scan possible networks
   ips.network = await scanIps(unroll_ips(nets), conf, true)
-  ips.local = Object.keys(nets).filter(ip => nets[ip] === 0)
+  ips.local = Object.keys(ips.network).filter(ip => ips.network[ip] == 0)
   return ips
 }
 })(window)

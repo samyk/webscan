@@ -466,7 +466,7 @@ pre[class*="language-"] {
 <h1 id="toc_0">webscan</h1>
 
 <p>
-<a href="https://samy.pl/webscan/">webscan</a> is a browser-based network IP scanner and local-IP resolver. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets.</p>
+<a href="https://samy.pl/webscan/">webscan</a> is a browser-based network IP scanner and local-IP detector. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets. Works on mobile and desktop across all major browsers and OS's.</p>
 
 <!--<p><a href="https://samy.pl/webscan/">try webscan live here</a><br></p>-->
 
@@ -487,7 +487,17 @@ more fun projects at <a href="https://samy.pl">https://samy.pl</a><br></p>
     document.getElementById('content').innerHTML += line + '\n'
   }
 
-  let scan = await webScanAll(undefined, { rtc: true, logger: log }) // scan major subnet gateways, then scan live subnets
+  let ipsToScan = undefined
+  let scan = await webScanAll(
+    ipsToScan, // array. if undefined, scan major subnet gateways, then scan live subnets. supports wildcards
+    {
+      rtc: true,   // use webrtc to detect local ips
+      logger: log, // logger callback
+      localCallback:   function(ip) { console.log(`local ip callback: ${ip}`)   },
+      networkCallback: function(ip) { console.log(`network ip callback: ${ip}`) },
+    }
+  )
+
   log(JSON.stringify(scan, null, 2))
   log(`<b>local IPs: ${scan.local.join(', ')}</b>`)
 })()
@@ -505,6 +515,16 @@ more fun projects at <a href="https://samy.pl">https://samy.pl</a><br></p>
 <li>if the WebRTC data channel is successful, we know we just established a connection to our own local IP</li>
 </ol>
 
+
+<p>Tested on</p>
+<ul>
+  <li>Chrome (macOS)</li>
+  <li>Edge (Windows)</li>
+  <li>Firefox (macOS)</li>
+  <li>Safari (macOS)</li>
+  <li>mobile Safari (iOS)</li>
+  <li>mobile Chrome (iOS)</li>
+</ul>
 
 
 

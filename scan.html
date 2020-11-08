@@ -4,9 +4,10 @@
 </head>
 <body>
 <pre id='content'>
-* <a href="https://github.com/samyk/webscan"><b>webscan</b></a>, a reliable web-based network scanner
+* <a href="https://samy.pl/webscan"><b>webscan</b></a> is a browser-based network IP scanner and local-IP resolver. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets.
 * by <a href="https://twitter.com/samykamkar">samy kamkar</a> 2020/11/07
-* <a href="https://samy.pl">https://samy.pl</a>
+* source code: <a href="https://github.com/samyk/webscan">github.com/samyk/webscan</a>
+* more fun projects at <a href="https://samy.pl">https://samy.pl</a>
 <hr>
 </pre>
 
@@ -19,7 +20,16 @@
     document.getElementById('content').innerHTML += line + '\n'
   }
 
-  let scan = await webScanAll(undefined, { rtc: true, logger: log }) // scan major subnet gateways, then scan live subnets
+  let ipsToScan = undefined
+  let scan = await webScanAll(
+    ipsToScan, // array. if undefined, scan major subnet gateways, then scan live subnets. supports wildcards
+    {
+      rtc: true,   // use webrtc to detect local ips
+      logger: log, // logger callback
+      localCallback:   function(ip) { console.log(`local ip callback: ${ip}`)   },
+      networkCallback: function(ip) { console.log(`network ip callback: ${ip}`) },
+    }
+  )
   log(JSON.stringify(scan, null, 2))
   log(`<b>local IPs: ${scan.local.join(', ')}</b>`)
 })()
