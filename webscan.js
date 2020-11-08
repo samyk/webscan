@@ -5,6 +5,10 @@
  */
 
 (function(window) {
+
+// scanned ips
+let scanned = {}
+
 // subnets to scan for
 let subnets = [
   '10.0.0.1',
@@ -42,6 +46,8 @@ let subnets = [
   '192.168.254.254',
   //'200.200.200.5',
 ]
+
+let candidateKeys = ["address", "candidate", "component", "foundation", "port", "priority", "protocol", "relatedAddress", "relatedPort", "sdpMLineIndex", "sdpMid", "tcpType", "type", "usernameFragment"]
 
 function dump(obj, indent)
 {
@@ -105,7 +111,8 @@ window.connectPeers = async function(ip, success)
   // a message to the remote peer.
   function sendMessage()
   {
-    sendChannel.send('test')
+    if (sendChannel)
+      sendChannel.send('test')
   }
 
   // Handle status changes on the local end of the data
@@ -149,8 +156,8 @@ window.connectPeers = async function(ip, success)
   {
     console.log(`disconnectPeers`)
     // Close the RTCDataChannels if they're open
-    sendChannel.close()
-    receiveChannel.close()
+    if (sendChannel) sendChannel.close()
+    if (receiveChannel) receiveChannel.close()
 
     // Close the RTCPeerConnections
     localConnection.close()
@@ -166,48 +173,52 @@ window.connectPeers = async function(ip, success)
   const config = {
     iceServers: [],
     iceTransportPolicy: 'all',
-    iceCandidatePoolSize: 0,
+    iceCandidatePoolSize: 0
   }
   localConnection = new RTCPeerConnection(config)
 
   // Create the data channel and establish its event listeners
-  sendChannel = localConnection.createDataChannel("sendChannel")
-  sendChannel.onopen = async function(e) { success(ip) }
-  //sendChannel.onopen = handleSendChannelStatusChange
-  sendChannel.onclose = handleSendChannelStatusChange
+  // XXX is there an alternative of this for older browsers that doesn't require mic?
+  if (localConnection.createDataChannel)
+  {
+    sendChannel = localConnection.createDataChannel("sendChannel")
+    sendChannel.onopen = async function(e) { success(ip) }
+    //sendChannel.onopen = handleSendChannelStatusChange
+    sendChannel.onclose = handleSendChannelStatusChange
+  }
 
   // Create the remote connection and its event listeners
-  remoteConnection = new RTCPeerConnection()
+  remoteConnection = new RTCPeerConnection(config)
   remoteConnection.ondatachannel = receiveChannelCallback
 
-  // Set up the ICE candidates for the two peers
-  localConnection.onicecandidate = function(e)
-  {
-    if (e.candidate)
+  // generate onicecandidate function for local and remote connections
+  let iceCan = function(con) {
+    return function(e)
     {
-      let newcan = {}
-      for (let key of ["address", "candidate", "component", "foundation", "port", "priority", "protocol", "relatedAddress", "relatedPort", "sdpMLineIndex", "sdpMid", "tcpType", "type", "usernameFragment"])
-        newcan[key] = e.candidate[key]
-      newcan.candidate = newcan.candidate.replaceAll(/[\w\-]+\.local|127\.0\.0\.1/g, ip)
-      newcan.address = ip
-      return localConnection.addIceCandidate(newcan)
+      let ret = 0
+      try
+      {
+        if (e.candidate)
+        {
+          let newcan = {}
+          for (let key of candidateKeys)
+            newcan[key] = e.candidate[key]
+          newcan.candidate = newcan.candidate.replaceAll(/[\w\-]+\.local|127\.0\.0\.1/g, ip)
+          newcan.address = ip
+          console.log('newcan', newcan)
+          console.log(con)
+          ret = con.addIceCandidate(newcan)
+          return ret
+        }
+        ret = !e.candidate || con.addIceCandidate(e.candidate)
+      } catch(e) { console.log('err', e) }
+      return ret
     }
-    return !e.candidate || remoteConnection.addIceCandidate(e.candidate)
   }
 
-  remoteConnection.onicecandidate = function(e)
-  {
-    if (e.candidate)
-    {
-      let newcan = {}
-      for (let key of ["address", "candidate", "component", "foundation", "port", "priority", "protocol", "relatedAddress", "relatedPort", "sdpMLineIndex", "sdpMid", "tcpType", "type", "usernameFragment"])
-        newcan[key] = e.candidate[key]
-      newcan.candidate = newcan.candidate.replaceAll(/[\w\-]+\.local|127\.0\.0\.1/g, ip)
-      newcan.address = ip
-      return localConnection.addIceCandidate(newcan)
-    }
-    return !e.candidate || localConnection.addIceCandidate(e.candidate)
-  }
+  // Set up the ICE candidates for the two peers
+  localConnection.onicecandidate = iceCan(remoteConnection)
+  remoteConnection.onicecandidate = iceCan(localConnection)
 
   // Now create an offer to connect this starts the process
   localConnection.createOffer()
@@ -260,43 +271,46 @@ function handleReceiveMessage(event)
 }
 
 // convert * in ips to 0..255
-let unroll_ips = function(ips, min, max)
+window.unroll_ips = function(ips, min, max)
 {
+  let newips = []
   // convert single ip to array
   if (typeof(ips) === 'string')
     ips = [ips]
 
-  // flatten *
-  return ips.flatMap(ip =>
-    ip.indexOf('*') != -1 ?
-    [...Array((max-(min||0)||256)-(min||0)).keys()].map(i => ip.replace('*', (min || 0) + i)) :
-    ip
-  )
+  // flatten * (older Edge doesn't support flatMap)
+  for (let ip of ips)
+    newips = newips.concat(
+      ip.indexOf('*') != -1 ?
+      [...Array((max-(min||0)||256)-(min||0)).keys()].map(i => ip.replace('*', (min || 0) + i)) :
+      ip
+    )
+  return newips
 }
 
 // hit blocks of ips, timeout after ms
-window.scanIps = async function(ips, conf)
+window.scanIps = async function(ips, conf, subnet)
 {
   if (!conf) conf = { }
   if (!conf.block) conf.block = 50
-  if (conf.logger) conf.logger(`scanIps() started`)
+  if (conf.logger) conf.logger(`scanIps() started, subnet=${!!subnet}`)
 
   let liveIps = {}
   // scan blocks of IPs
   for (let i = 0; i < ips.length; i += conf.block)
-    liveIps = Object.assign(liveIps, await scanIpsBlock(ips.slice(i, i+conf.block), conf))
+    liveIps = Object.assign(liveIps, await scanIpsBlock(ips.slice(i, i+conf.block), conf, subnet))
 
   return liveIps
 }
 
-window.scanIpsBlock = async function(ips, conf)
+window.scanIpsBlock = async function(ips, conf, subnet)
 {
   // ensure we're on http
   if (window.location.protocol !== 'http:')
     window.location.protocol = 'http:'
 
   if (!conf) conf = { }
-  if (!conf.timeout) conf.timeout = 1500
+  if (!conf.timeout) conf.timeout = 3000
   if (conf.logger) conf.logger(`scanIpsBlock(${ips})`)
   let promises = {}
   let liveIps = {}
@@ -304,56 +318,92 @@ window.scanIpsBlock = async function(ips, conf)
   const controller = new AbortController()
   const { signal } = controller
 
+  // this is built for high speed and about 200x faster than standard fetch
+  let fetchConf = {
+    signal: signal,
+    /*
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'omit', // include, *same-origin, omit
+    headers: {
+      //'Content-Type': 'application/json',
+    },
+    redirect: 'manual', // manual, *follow, error
+    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    */
+  }
+
   // add ip to our live IPs
-  let addLive = async function(ip, time)
+  let addLive = async function(lip, time)
   {
-    liveIps[ip] = time
+    liveIps[lip] = time
+    conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms`)
 
     // now validate which ips are actually local via webrtc
     if (conf.rtc !== false)
-      await connectPeers(ip, function(ip)
+      await connectPeers(lip, function(tip)
       {
-        if (conf.logger) conf.logger(`<b>found LOCAL ip address: ${ip}</b>`)
-        liveIps[ip] = 0
+        if (conf.logger)
+          conf.logger(`<b><span style='color:tomato;'>found LOCAL ip address: ${tip}</span></b>`)
+        liveIps[tip] = 0
       })
   }
 
   // generate success/fail promises first to speed things up
   for (let ip of ips)
-    promises[ip] = (function(ip) {
-      return function(e)
+    promises[ip] =
+      function(e)
       {
         // if we didn't abort, this ip is live!
         if (e.name !== 'AbortError')
-          addLive(ip, new Date().getTime())
+          addLive(ip, epoch())
       }
-    })(ip)
 
   // stop all fetches after timeout
-  setTimeout(function()
+  let timer = setTimeout(function()
   {
     controller.abort()
   }, conf.timeout)
 
   // scan our ips
-  let start = {}
   for (let ip of ips)
   {
-    scans.push(fetch(`http://${ip}:1337/samyscan`, { signal }).catch(promises[ip]))
-    start[ip] = new Date().getTime()
+    // if we haven't scanned it yet
+    if (!scanned[ip])
+    {
+      scans.push(fetch(`http://${ip}:1337/samyscan`, fetchConf).catch(promises[ip]))
+      scanned[ip] = epoch()
+    }
   }
-      //scans.push(fetch(`http://${ip}:1337/samyscan`, { signal }).then(promises[ip]).catch(promises[ip]))
 
   // when everything's done scanning, get time in ms
   await Promise.all(scans.map(p => p.catch(e => e))).then(v => {
     for (let [ip, end] of Object.entries(liveIps))
       if (liveIps[ip])
-        liveIps[ip] -= start[ip]
+        liveIps[ip] -= scanned[ip]
   })
-  //if (conf.logger) conf.logger('scanIpsBlock done')
+
+  // end timer in case it wasn't already
+  clearTimeout(timer)
+
+  // if we found subnets, let's scan them
+  if (subnet)
+    for (let net of Object.keys(liveIps))
+    {
+      if (conf.logger) conf.logger(`scanIps(${getSubnet(net)}, subnet=false)`)
+      Object.assign(liveIps, await scanIps(unroll_ips(getSubnet(net)+'*', 1, 254), conf))
+    }
 
   // return ip: time
   return liveIps
+}
+
+// return time
+function epoch()
+{
+  return performance.now()
+  //return new Date().getTime()
 }
 
 // return subnet from ip address
@@ -365,24 +415,14 @@ function getSubnet(ip)
 // scan for subnets, then scan discovered subnets for IPs
 window.webScanAll = async function(nets, conf)
 {
-  let possible = {}
   let ips = {}
   if (!conf) conf = { }
   if (!nets) nets = subnets
   if (conf.logger) conf.logger(`webScanAll() started`)
 
-  // first get our possible networks
-  nets = await scanIps(unroll_ips(nets), conf)
-
-  // now let's scan each block of 256 IPs per net
-  for (let net of Object.keys(nets))
-  {
-    if (conf.logger) conf.logger(`scanIps(${getSubnet(net)})`)
-    Object.assign(possible, await scanIps(unroll_ips(getSubnet(net)+'*', 2, 253), conf))
-  }
-
-  ips.network = possible
-  ips.local = Object.keys(possible).filter(ip => possible[ip] === 0)
+  // scan possible networks
+  ips.network = await scanIps(unroll_ips(nets), conf, true)
+  ips.local = Object.keys(nets).filter(ip => nets[ip] === 0)
   return ips
 }
 })(window)
