@@ -11,8 +11,9 @@
 <hr>
 </pre>
 
-  <script>
-(async function() {
+<script>
+window.addEventListener('load', async function()
+{
   // logging function
   let log = function(line)
   {
@@ -32,7 +33,7 @@
   )
   log(JSON.stringify(scan, null, 2))
   log(`<b><span style='color: tomato;'>local IPs: ${scan.local.join(', ')}</span></b>`)
-})()
-  </script>
+})
+</script>
 </body>
 </html>

@@ -23,31 +23,31 @@
     font-family: "Ubuntu";
     font-style: normal;
     font-weight: 300;
-    src: local("Ubuntu Light"), local("Ubuntu-Light"), url("http://themes.googleusercontent.com/static/fonts/ubuntu/v4/WtcvfJHWXKxx4x0kuS1kobO3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
+    src: local("Ubuntu Light"), local("Ubuntu-Light"), url("//themes.googleusercontent.com/static/fonts/ubuntu/v4/WtcvfJHWXKxx4x0kuS1kobO3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
 }
 @font-face {
     font-family: "Ubuntu";
     font-style: normal;
     font-weight: 400;
-    src: local("Ubuntu"), url("http://themes.googleusercontent.com/static/fonts/ubuntu/v4/CGXpU_uR_FUfdeyCjAWgZ-vvDin1pK8aKteLpeZ5c0A.woff") format("woff");
+    src: local("Ubuntu"), url("//themes.googleusercontent.com/static/fonts/ubuntu/v4/CGXpU_uR_FUfdeyCjAWgZ-vvDin1pK8aKteLpeZ5c0A.woff") format("woff");
 }
 @font-face {
     font-family: "Ubuntu";
     font-style: normal;
     font-weight: 500;
-    src: local("Ubuntu Medium"), local("Ubuntu-Medium"), url("http://themes.googleusercontent.com/static/fonts/ubuntu/v4/gMhvhm-nVj1086DvGgmzB7O3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
+    src: local("Ubuntu Medium"), local("Ubuntu-Medium"), url("//themes.googleusercontent.com/static/fonts/ubuntu/v4/gMhvhm-nVj1086DvGgmzB7O3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
 }
 @font-face {
     font-family: "Ubuntu";
     font-style: normal;
     font-weight: 700;
-    src: local("Ubuntu Bold"), local("Ubuntu-Bold"), url("http://themes.googleusercontent.com/static/fonts/ubuntu/v4/nsLtvfQoT-rVwGTHHnkeJrO3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
+    src: local("Ubuntu Bold"), local("Ubuntu-Bold"), url("//themes.googleusercontent.com/static/fonts/ubuntu/v4/nsLtvfQoT-rVwGTHHnkeJrO3LdcAZYWl9Si6vvxL-qU.woff") format("woff");
 }
 @font-face {
     font-family: "Ubuntu";
     font-style: italic;
     font-weight: 300;
-    src: local("Ubuntu Light Italic"), local("Ubuntu-LightItalic"), url("http://themes.googleusercontent.com/static/fonts/ubuntu/v4/DZ_YjBPqZ88vcZCcIXm6VqfTCPadK0KLfdEfFtGWCYw.woff") format("woff");
+    src: local("Ubuntu Light Italic"), local("Ubuntu-LightItalic"), url("//themes.googleusercontent.com/static/fonts/ubuntu/v4/DZ_YjBPqZ88vcZCcIXm6VqfTCPadK0KLfdEfFtGWCYw.woff") format("woff");
 }
 
 
@@ -473,13 +473,14 @@ pre[class*="language-"] {
 <p>by <a href="https://twitter.com/samykamkar">@SamyKamkar</a><br>
 released 2020/11/07<br>
 source code: <a href="https://github.com/samyk/webscan">github.com/samyk/webscan</a><br>
-more fun projects at <a href="https://samy.pl">https://samy.pl</a><br></p>
+more fun projects at <a href="https://samy.pl">samy.pl</a><br></p>
 
 <pre id='content'>
 </pre>
 
-  <script>
-(async function() {
+<script>
+window.addEventListener('load', async function()
+{
   // logging function
   let log = function(line)
   {
@@ -500,8 +501,8 @@ more fun projects at <a href="https://samy.pl">https://samy.pl</a><br></p>
 
   log(JSON.stringify(scan, null, 2))
   log(`<b><span style='color: tomato;'>local IPs: ${scan.local.join(', ')}</span></b>`)
-})()
-  </script>
+})
+</script>
 
 <p>webscan works like so</p>
 
@@ -518,10 +519,11 @@ more fun projects at <a href="https://samy.pl">https://samy.pl</a><br></p>
 
 <p>Tested on</p>
 <ul>
-  <li>Chrome (macOS)</li>
-  <li>Edge (Windows)</li>
-  <li>Firefox (macOS)</li>
-  <li>Safari (macOS)</li>
+  <li>Chrome 87.0.4280.47 (macOS)</li>
+  <li>Edge 86.0.622.63 (Windows)</li>
+  <li>Firefox 82.0.2 (macOS)</li>
+  <li>Firefox 82.0.2 (Windows 10)</li>
+  <li>Safari 13.1.2 (macOS)</li>
   <li>mobile Safari (iOS)</li>
   <li>mobile Chrome (iOS)</li>
 </ul>

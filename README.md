@@ -6,7 +6,7 @@ webscan is a browser-based network IP scanner and local-IP detector. It detects 
 
 by [@SamyKamkar](https://twitter.com/samykamkar)<br>
 released 2020/11/07<br>
-more fun projects at [https://samy.pl](https://samy.pl)<br>
+more fun projects at [samy.pl](https://samy.pl)<br>
 
 webscan works like so
 1. webscan first iterates through a list of common gateway IP addresses
@@ -56,10 +56,10 @@ scan = {
 ```
 
 Tested on
-- Chrome (macOS)
-- Edge (Windows)
-- Firefox (macOS)
-- Safari (macOS)
+- Chrome 87.0.4280.47 (macOS)
+- Edge 86.0.622.63 (Windows)
+- Firefox 82.0.2 (macOS)
+- Firefox 82.0.2 (Windows 10)
+- Safari 13.1.2 (macOS)
 - mobile Safari (iOS)
 - mobile Chrome (iOS)
-

@@ -97,9 +97,18 @@ window.connectPeers = async function(ip, success)
     }
   }
 
+  // Handle onmessage events for the receiving channel.
+  // These are the data messages sent by the sending channel.
+  let handleReceiveMessage = async function(event)
+  {
+    console.log(`handleReceiveMessage: ${ip} ${event}: ${event.data}`)
+    success(ip)
+    console.log(event.ice)
+  }
+
   // Called when the connection opens and the data
   // channel is ready to be connected to the remote.
-  function receiveChannelCallback(event)
+  let receiveChannelCallback = async function(event)
   {
     console.log(`receiveChannelCallback: ${event}`, event)
     receiveChannel = event.channel
@@ -107,7 +116,6 @@ window.connectPeers = async function(ip, success)
     receiveChannel.onopen = handleReceiveChannelStatusChange
     receiveChannel.onclose = handleReceiveChannelStatusChange
   }
-
 
   // Handle status changes on the receiver's channel.
   function handleReceiveChannelStatusChange(event)
@@ -149,8 +157,8 @@ window.connectPeers = async function(ip, success)
   if (localConnection.createDataChannel)
   {
     sendChannel = localConnection.createDataChannel("sendChannel")
-    sendChannel.onopen = async function(e) { success(ip) }
-    //sendChannel.onopen = handleSendChannelStatusChange
+    //sendChannel.onopen = async function(e) { success(ip) }
+    sendChannel.onopen = handleSendChannelStatusChange
     sendChannel.onclose = handleSendChannelStatusChange
   }
 
@@ -226,13 +234,6 @@ function handleAddCandidateError()
   console.log(`handleAddCandidateError - FAIL`)
 }
 
-// Handle onmessage events for the receiving channel.
-// These are the data messages sent by the sending channel.
-function handleReceiveMessage(event)
-{
-  console.log(`handleReceiveMessage: ${event}: ${event.data}`)
-  console.log(event.ice)
-}
 
 // convert * in ips to 0..255
 window.unroll_ips = function(ips, min, max)
@@ -376,6 +377,14 @@ function getSubnet(ip)
 // scan for subnets, then scan discovered subnets for IPs
 window.webScanAll = async function(nets, conf)
 {
+  // XXX Chrome acting funky on https, need to investigate
+  
+  if (location.protocol === 'https:')
+  {
+    location.protocol = 'http:'
+    return
+  }
+
   let ips = {}
   if (!conf) conf = { }
   if (!nets) nets = subnets
@@ -400,5 +409,3 @@ window.webScanAll = async function(nets, conf)
   return ips
 }
 })(window)
-
-
