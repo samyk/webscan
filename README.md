@@ -3,6 +3,7 @@
 webscan is a browser-based network IP scanner and local-IP detector. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets. Works on mobile and desktop across all major browsers and OS's.
 
 [try webscan live here](https://samy.pl/webscan/)<br>
+[beta version here](https://samy.pl/webscan/beta)<br>
 
 by [@SamyKamkar](https://twitter.com/samykamkar)<br>
 released 2020/11/07<br>
