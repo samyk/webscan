@@ -466,14 +466,16 @@ pre[class*="language-"] {
 <h1 id="toc_0">webscan</h1>
 
 <p>
-<a href="https://samy.pl/webscan">webscan</a> is a browser-based network IP scanner and local IP detector. It detects IPs bound to the user/victim by listening on an RTP data channel via WebRTC and looping back to the port across any live IPs, as well as discovering all live IP addresses on valid subnets by monitoring for immediate timeouts (TCP RST packets returned) from <a href="https://fetch.spec.whatwg.org/">fetch()</a> calls or hidden <i>img</i> tags pointed to valid subnets/IPs. Works on mobile and desktop across all major browsers and OS's. Beta version is extensible to allow the addition of multiple techniques.
+<a href="https://samy.pl/webscan">webscan</a> is a browser-based network IP scanner and local IP detector. It detects IPs bound to the user/victim by listening on an RTP data channel via WebRTC and looping back to the port across any live IPs, as well as discovering all live IP addresses on valid subnets by monitoring for immediate timeouts (TCP RST packets returned) from <a target=_new href="https://fetch.spec.whatwg.org/">fetch()</a> calls or hidden <i>img</i> tags pointed to valid subnets/IPs. Works on mobile and desktop across all major browsers and OS's. Beta version is extensible to allow the addition of multiple techniques.
+<p>
+webscan takes advantage of the fact that non-responsive img tag sockets can be closed to prevent browser & network-based rate limiting by altering the src attribute to a non-socket URI (removing from DOM ironically does not close the socket), or by using fetch()'s signal support of the <a target=_new href="https://dom.spec.whatwg.org/#interface-abortcontroller">AbortController()</a> interface.
 
 
 <!--<p><a href="https://samy.pl/webscan/">try webscan live here</a><br></p>-->
 
-<p>by <a href="https://twitter.com/samykamkar">@SamyKamkar</a><br>
+<p>by <a target=_new href="https://twitter.com/samykamkar">@SamyKamkar</a><br>
 released 2020/11/07<br>
-source code: <a href="https://github.com/samyk/webscan">github.com/samyk/webscan</a><br>
+source code: <a target=_new href="https://github.com/samyk/webscan">github.com/samyk/webscan</a><br>
 beta version: <a href="https://samy.pl/webscan/beta.html">samy.pl/webscan/beta</a><br>
 more fun projects at <a href="https://samy.pl">samy.pl</a><br></p>
 

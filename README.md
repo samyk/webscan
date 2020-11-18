@@ -2,6 +2,8 @@
 
 [webscan](https://samy.pl/webscan) is a browser-based network IP scanner and local IP detector. It detects IPs bound to the user/victim by listening on an RTP data channel via WebRTC and looping back to the port across any live IPs, as well as discovering all live IP addresses on valid subnets by monitoring for immediate timeouts (TCP RST packets returned) from [https://fetch.spec.whatwg.org/](fetch()) calls or hidden <i>img</i> tags pointed to valid subnets/IPs. Works on mobile and desktop across all major browsers and OS's. Beta version is extensible to allow the addition of multiple techniques.
 
+webscan takes advantage of the fact that non-responsive img tag sockets can be closed to prevent browser & network-based rate limiting by altering the src attribute to a non-socket URI (removing from DOM ironically does not close the socket), or by using fetch()'s signal support of the <a target=_new href="https://dom.spec.whatwg.org/#interface-abortcontroller">AbortController()</a> interface.
+
 [try webscan live here](https://samy.pl/webscan/)<br>
 [beta version here](https://samy.pl/webscan/beta)<br>
 
