@@ -66,7 +66,7 @@ Todo
 - use iframe to perform scans in blocks
   - when the frame is torn down, i assume this helps guarantee the connections are torn down
   - how do multiple iframes scanning multiple blocks work? perhaps this allows us to bypass browser connection rate limiting
-- support both fetch and img as scanner cores
+- support both fetch() and img as scanner cores (completed in <a href="beta.js">beta</a>)
   - Safari
     - note: img tag works really well in some browsers like Safari
     - caveat: changing the .src doesn't seem to abort the connection
