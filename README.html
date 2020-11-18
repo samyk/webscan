@@ -470,7 +470,6 @@ pre[class*="language-"] {
 <p>
 webscan takes advantage of the fact that non-responsive img tag sockets can be closed to prevent browser & network-based rate limiting by altering the src attribute to a non-socket URI (removing from DOM ironically does not close the socket), or by using fetch()'s signal support of the <a target=_new href="https://dom.spec.whatwg.org/#interface-abortcontroller">AbortController()</a> interface.
 
-
 <!--<p><a href="https://samy.pl/webscan/">try webscan live here</a><br></p>-->
 
 <p>by <a target=_new href="https://twitter.com/samykamkar">@SamyKamkar</a><br>
@@ -512,8 +511,9 @@ window.addEventListener('load', async function()
 
 <ol>
 <li>webscan first iterates through a list of common gateway IP addresses</li>
-<li>for each IP, use fetch() to make fake HTTP connection to http://common.gateway.ip:1337</li>
-<li>if a TCP RST returns, the fetch() promise will be rejected before a timeout, indicating a live IP</li>
+<li>for each IP, use fetch() or img tag to make fake HTTP connection to http://common.gateway.ip:1337</li>
+<li>if a TCP RST returns, the fetch() promise will be rejected or img tag onerror will trigger before a timeout, indicating a live IP</li>
+<li>to prevent browser or network rate limiting, non-responsive fetch() sockets are closed via AbortController() signal while img-tags have the src redirected to non-socket URI, closing the socket</li>
 <li>when live gateway detected, step 1-3 reran for every IP on the subnet (<i>e.g. 192.168.0.[1-255]</i>)</li>
 <li>a WebRTC data channel is opened on the browser, opening a random port on the victim machine</li>
 <li>for any IPs that are found alive on the subnet, a WebRTC data channel connection is made to that host</li>
