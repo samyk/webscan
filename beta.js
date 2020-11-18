@@ -117,7 +117,7 @@ let scanners = { /*
       for (let ip of ips)
       {
         this.imgs[ip].onerror = this.imgs[ip].onload = () => { }
-        this.imgs[ip].src = 'about:' // end the socket
+        this.imgs[ip].src = pixel_img // end the socket
         this.imgs[ip].remove() // remove dom object
       }
     }, // end stop
@@ -202,6 +202,9 @@ let subnets = [
 ]
 
 let candidateKeys = ["address", "candidate", "component", "foundation", "port", "priority", "protocol", "relatedAddress", "relatedPort", "sdpMLineIndex", "sdpMid", "tcpType", "type", "usernameFragment"]
+
+// 1x1 transparent pixel
+const pixel_img = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
 // Connect the two peers. Normally you look for and connect to a remote
 // machine here, but we're just connecting two local objects, so we can
