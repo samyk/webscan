@@ -466,7 +466,8 @@ pre[class*="language-"] {
 <h1 id="toc_0">webscan</h1>
 
 <p>
-<a href="https://samy.pl/webscan/">webscan</a> is a browser-based network IP scanner and local-IP detector. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets. Works on mobile and desktop across all major browsers and OS's.</p>
+<a href="https://samy.pl/webscan">webscan</a> is a browser-based network IP scanner and local IP detector. It detects IPs bound to the user/victim by listening on an RTP data channel via WebRTC and looping back to the port across any live IPs, as well as discovering all live IP addresses on valid subnets by monitoring for immediate timeouts (TCP RST packets returned) from <a href="https://fetch.spec.whatwg.org/">fetch()</a> calls or hidden <i>img</i> tags pointed to valid subnets/IPs. Works on mobile and desktop across all major browsers and OS's. Beta version is extensible to allow the addition of multiple techniques.
+
 
 <!--<p><a href="https://samy.pl/webscan/">try webscan live here</a><br></p>-->
 

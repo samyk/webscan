@@ -1,6 +1,6 @@
 # webscan
 
-webscan is a browser-based network IP scanner and local-IP detector. It detects IPs bound to the user/victim as well as IP addresses discovered across any detected subnets. Works on mobile and desktop across all major browsers and OS's.
+[webscan](https://samy.pl/webscan) is a browser-based network IP scanner and local IP detector. It detects IPs bound to the user/victim by listening on an RTP data channel via WebRTC and looping back to the port across any live IPs, as well as discovering all live IP addresses on valid subnets by monitoring for immediate timeouts (TCP RST packets returned) from [https://fetch.spec.whatwg.org/](fetch()) calls or hidden <i>img</i> tags pointed to valid subnets/IPs. Works on mobile and desktop across all major browsers and OS's. Beta version is extensible to allow the addition of multiple techniques.
 
 [try webscan live here](https://samy.pl/webscan/)<br>
 [beta version here](https://samy.pl/webscan/beta)<br>
@@ -22,7 +22,7 @@ webscan works like so
 ```javascript
 // wait for scan to finish
 let scanResults = await webScanAll()
-
+ 
 // or get callbacks when ips are found with a promise
 let ipsToScan = undefined // scans all pre-defined networks if null
 let scanPromise = webScanAll(
