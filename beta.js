@@ -432,7 +432,7 @@ async function isLive(ip)
   if (conf.networkCallback)
     conf.networkCallback(ip)
 
-  conf.logger(`<b>found potential host: ${ip}</b> ${live[ip]-scanned[ip]}ms (networkCallback called)`)
+  conf.logger(`<b>found host: ${ip}</b> ${live[ip]-scanned[ip]}ms (networkCallback called)`)
 
   // hit callback
   if (scan.live) scan.live(ip)
@@ -526,7 +526,7 @@ window.webScanAll = async function(nets, c)
   setConf(c)
 
   // XXX Chrome acting funky on https, need to investigate
-  if (location.protocol === 'https:')
+  if (location.protocol === 'https:' && !c.noRedirect)
     return location.protocol = 'http:'
 
   scanned = {}

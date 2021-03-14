@@ -297,7 +297,8 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     liveIps[lip] = time
     if (conf.networkCallback)
       conf.networkCallback(lip)
-    conf.logger(`<b>found potential host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms (networkCallback called)`)
+    if (conf.logger)
+      conf.logger(`<b>found host: ${lip}</b> ${liveIps[lip]-scanned[lip]}ms (networkCallback called)`)
 
     // now validate which ips are actually local via webrtc
     if (conf.rtc !== false)
@@ -379,7 +380,7 @@ window.webScanAll = async function(nets, conf)
 {
   // XXX Chrome acting funky on https, need to investigate
   
-  if (location.protocol === 'https:')
+  if (location.protocol === 'https:' && !conf.noRedirect)
   {
     location.protocol = 'http:'
     return
