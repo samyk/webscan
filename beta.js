@@ -497,7 +497,9 @@ window.scanIpsBlock = async function(ips, c, subnet)
   if (subnet)
     for (let net of Object.keys(live))
     {
-      conf.logger(`scanIps(${getSubnet(net)}, subnet=false)`)
+      if (conf.subnetCallback)
+        conf.subnetCallback(net)
+      conf.logger(`scanIps(${getSubnet(net)}, subnet=false) (subnetCallback called)`)
       Object.assign(live, await scanIps(unroll_ips(getSubnet(net)+'*', 1, 254)))
     }
 

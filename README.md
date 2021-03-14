@@ -33,7 +33,9 @@ let scanPromise = webScanAll(
   {
     rtc: true,   // use webrtc to detect local ips
     logger: l => console.log(l),  // logger callback
+    noRedirect: false, // if true, doesn't redirect from http to http - Chrome doesn't scan detect network IPs proprly on https atm
     localCallback:   function(ip) { console.log(`local ip callback: ${ip}`)   },
+    subnetCallback:  function(ip) { console.log(`router ip callback: ${ip}`)  },
     networkCallback: function(ip) { console.log(`network ip callback: ${ip}`) },
   }
 )

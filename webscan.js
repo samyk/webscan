@@ -6,6 +6,11 @@
 
 (function(window) {
 
+function clog(...args)
+{
+  console.log(...args)
+}
+
 // scanned ips
 let scanned = {}
 
@@ -88,10 +93,10 @@ window.connectPeers = async function(ip, success)
   // in this example.
   function handleSendChannelStatusChange(event)
   {
-    console.log('handleSendChannelStatusChange', sendChannel)
+    clog('handleSendChannelStatusChange', sendChannel)
     if (sendChannel)
     {
-      console.log('sendChannel state: ' + sendChannel.readyState)
+      clog('sendChannel state: ' + sendChannel.readyState)
       if (sendChannel.readyState === 'open')
         sendMessage()
     }
@@ -101,16 +106,16 @@ window.connectPeers = async function(ip, success)
   // These are the data messages sent by the sending channel.
   let handleReceiveMessage = async function(event)
   {
-    console.log(`handleReceiveMessage: ${ip} ${event}: ${event.data}`)
+    clog(`handleReceiveMessage: ${ip} ${event}: ${event.data}`)
     success(ip)
-    console.log(event.ice)
+    clog(event.ice)
   }
 
   // Called when the connection opens and the data
   // channel is ready to be connected to the remote.
   let receiveChannelCallback = async function(event)
   {
-    console.log(`receiveChannelCallback: ${event}`, event)
+    clog(`receiveChannelCallback: ${event}`, event)
     receiveChannel = event.channel
     receiveChannel.onmessage = handleReceiveMessage
     receiveChannel.onopen = handleReceiveChannelStatusChange
@@ -120,16 +125,16 @@ window.connectPeers = async function(ip, success)
   // Handle status changes on the receiver's channel.
   function handleReceiveChannelStatusChange(event)
   {
-    console.log(`handleReceiveChannelStatusChange`)
+    clog(`handleReceiveChannelStatusChange`)
     if (receiveChannel)
-      console.log("Receive channel's status has changed to " + receiveChannel.readyState)
+      clog("Receive channel's status has changed to " + receiveChannel.readyState)
   }
 
   // Close the connection, including data channels if they're open
   // Also update the UI to reflect the disconnected status
   function disconnectPeers()
   {
-    console.log(`disconnectPeers`)
+    clog(`disconnectPeers`)
     // Close the RTCDataChannels if they're open
     if (sendChannel) sendChannel.close()
     if (receiveChannel) receiveChannel.close()
@@ -180,13 +185,13 @@ window.connectPeers = async function(ip, success)
             newcan[key] = e.candidate[key]
           newcan.candidate = newcan.candidate.replaceAll(/[\w\-]+\.local|127\.0\.0\.1/g, ip)
           newcan.address = ip
-          console.log('newcan', newcan)
-          console.log(con)
+          //clog('newcan', newcan)
+          //clog(con)
           ret = con.addIceCandidate(newcan)
           return ret
         }
         ret = !e.candidate || con.addIceCandidate(e.candidate)
-      } catch(e) { console.log('err', e) }
+      } catch(e) { clog('err', e) }
       return ret
     }
   }
@@ -211,27 +216,27 @@ window.connectPeers = async function(ip, success)
 // both the same way.
 function handleCreateDescriptionError(error)
 {
-  console.log("Unable to create an offer: " + error.toString())
+  clog("Unable to create an offer: " + error.toString())
 }
 
 // Handle successful addition of the ICE candidate
 // on the "local" end of the connection.
 function handleLocalAddCandidateSuccess()
 {
-  console.log('handleLocalAddCandidateSuccess')
+  clog('handleLocalAddCandidateSuccess')
 }
 
 // Handle successful addition of the ICE candidate
 // on the "remote" end of the connection.
 function handleRemoteAddCandidateSuccess()
 {
-  console.log('handleRemoteAddCandidateSuccess')
+  clog('handleRemoteAddCandidateSuccess')
 }
 
 // Handle an error that occurs during addition of ICE candidate.
 function handleAddCandidateError()
 {
-  console.log(`handleAddCandidateError - FAIL`)
+  clog(`handleAddCandidateError - FAIL`)
 }
 
 
@@ -334,7 +339,7 @@ window.scanIpsBlock = async function(ips, conf, subnet)
     // if we haven't scanned it yet
     if (!scanned[ip])
     {
-      //console.log(epoch(), ip)
+      //clog(epoch(), ip)
       scans.push(fetch(`//${ip}:1337/samyscan`, fetchConf).catch(promises[ip]))
       scanned[ip] = epoch()
     }
@@ -354,7 +359,9 @@ window.scanIpsBlock = async function(ips, conf, subnet)
   if (subnet)
     for (let net of Object.keys(liveIps))
     {
-      if (conf.logger) conf.logger(`scanIps(${getSubnet(net)}, subnet=false)`)
+      if (conf.subnetCallback)
+        conf.subnetCallback(net)
+      if (conf.logger) conf.logger(`scanIps(${getSubnet(net)}, subnet=false) (subnetCallback called)`)
       Object.assign(liveIps, await scanIps(unroll_ips(getSubnet(net)+'*', 1, 254), conf))
     }
 
